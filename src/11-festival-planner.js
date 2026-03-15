@@ -50,4 +50,65 @@
  */
 export function createFestivalManager() {
   // Your code here
+   let festivals = [];
+
+   // ✅ Helper to validate type
+   const validTypes = ["religious", "national", "cultural"];
+   const isValidType = (type) => validTypes.includes(type);
+
+   // ✅ Helper to parse date
+   const parseDate = (str) => {
+     const d = new Date(str);
+     return isNaN(d) ? null : d;
+   };
+
+   return {
+     // Add a festival
+     addFestival(name, date, type) {
+       if (!name || typeof date !== "string" || !isValidType(type)) return -1;
+       if (festivals.some((f) => f.name === name)) return -1;
+
+       const d = parseDate(date);
+       if (!d) return -1;
+
+       festivals.push({ name, date, type });
+       return festivals.length;
+     },
+
+     // Remove a festival
+     removeFestival(name) {
+       const index = festivals.findIndex((f) => f.name === name);
+       if (index === -1) return false;
+       festivals.splice(index, 1);
+       return true;
+     },
+
+     // Get copy of all festivals
+     getAll() {
+       return festivals.map((f) => ({ ...f }));
+     },
+
+     // Get festivals by type
+     getByType(type) {
+       if (!isValidType(type)) return [];
+       return festivals.filter((f) => f.type === type).map((f) => ({ ...f }));
+     },
+
+     // Get next n upcoming festivals from currentDate
+     getUpcoming(currentDate, n = 3) {
+       const now = parseDate(currentDate);
+       if (!now) return [];
+
+       return festivals
+         .filter((f) => parseDate(f.date) >= now)
+         .sort((a, b) => parseDate(a.date) - parseDate(b.date))
+         .slice(0, n)
+         .map((f) => ({ ...f }));
+     },
+
+     // Get total count
+     getCount() {
+       return festivals.length;
+     },
+   };
 }
